@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: failure-permanent
+spec:
+  ttlSecondsAfterFinished: 100
+  backoffLimit: 3
+  completions: 1
+  podFailurePolicy:
+    rules:
+    - action: FailJob
+      onExitCodes:
+        containerName: main
+        operator: In
+        values: [42]
+
+    - action: Ignore
+      onPodConditions:
+      - type: DisruptionTarget
+        status: "true"
+
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: main
+        image: python:3.12-slim
+        command:
+        - python
+        - -c
+        - |
+          import sys
+          
+          def faulty_func():
+            print("this code will never work")
+            sys.exit(42)
+
+          faulty_func()

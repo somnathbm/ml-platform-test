@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: failure-deadline
+spec:
+  ttlSecondsAfterFinished: 100
+  backoffLimit: 3
+  completions: 1
+  activeDeadlineSeconds: 30
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: main
+        image: python:3.12-slim
+        command:
+        - python
+        - -c
+        - |
+          import time
+
+          def deep_sleep():
+            print("this code will sleep for 1 minute!!")
+            time.sleep(60)
+
+          deep_sleep()
