@@ -3,7 +3,6 @@ kind: Job
 metadata:
   name: failure-permanent
 spec:
-  ttlSecondsAfterFinished: 100
   backoffLimit: 3
   completions: 1
   podFailurePolicy:

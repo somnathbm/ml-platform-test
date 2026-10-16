@@ -3,7 +3,6 @@ kind: Job
 metadata:
   name: indexed-workers
 spec:
-  ttlSecondsAfterFinished: 100
   completions: 6
   parallelism: 2
   completionMode: Indexed
