@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nonindexed-parallel-job
+spec:
+  completions: 10
+  parallelism: 2
+  completionMode: NonIndexed
+  backoffLimit: 10
+
+  podFailurePolicy:
+    rules:
+    - action: FailJob
+      onExitCodes:
+        containerName: worker
+        operator: In
+        values:
+        - 42
+    - action: Ignore
+      onPodConditions:
+      - type: DisruptionTarget
+        status: "True"
+
+  template:
+    metadata:
+      labels:
+        job-name: nonindexed-parallel-job
+    spec:
+      containers:
+      - name: worker
+        image: python:3.12-slim
+        command:
+        - python
+        - -c
+        - |
+          import sys
+          import time
+          import random
+
+          turn = random.randint(1, 10)
+          if  turn > 5:
+            print("job should sleep and then exits with 10")
+            time.sleep(5)
+            sys.exit(10)
+          else:
+            print("job should succeed")
+            sys.exit(0)
+      restartPolicy: Never
